@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local datasets, generated training artifacts, and model checkpoints are large
+# or third-party derived files. Keep the repository code-first.
+data/
+checkpoints/
+artifacts/*
+!artifacts/tuning/
+artifacts/tuning/*
+!artifacts/tuning/final_5070ti_config.json
+paper_extract.txt
+src/*.egg-info/
