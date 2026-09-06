@@ -1,114 +1,88 @@
-# PEKT-R
+# 编程题智能推荐系统
 
-This repository implements PEKT-R, an adaptive programming exercise
-recommendation algorithm that combines programming error representation,
-knowledge tracing, and error-correction-aware ranking.
+## 📌 项目简介
 
-The implementation follows the paper pipeline:
+本项目是面向编程学习场景构建的融合编程错误表征的自适应练习推荐系统。项目以学生在线编程提交记录、判题状态、题目知识点及错误类型信息为基础，结合 CodeT5+ 代码语义编码、DTransformer 知识追踪模型和面向错误修正的推荐策略，构建“错误识别 → 知识追踪 → 自适应推荐”的闭环学习支持机制。
 
-1. Build a multi-label programming-error vector from judge status, code,
-   problem tags, and judge feedback.
-2. Fuse problem, knowledge concept, answer result, judge status, and error
-   features into an error-aware diagnostic Transformer.
-3. Predict each learner's dynamic knowledge mastery state.
-4. Rank candidate exercises with:
+系统旨在突破传统编程题推荐方法仅依赖作答正确率或知识点匹配的局限，进一步刻画学生“因何出错”“错误是否持续出现”以及“是否完成有效修正”等学习过程信息，从而为学生推荐更符合当前知识状态和错误薄弱点的编程练习题。
 
-```text
-Score(u, q) = alpha * KMatch(u, q)
-            + beta  * DMatch(u, q)
-            + gamma * ECorrect(u, q)
-```
+---
 
-## Data
+## ✨ 核心特点
 
-The BePKT dataset is expected at:
+- **多标签编程错误识别**  
+  采用 CodeT5+ 对学生提交代码进行语义编码，并结合在线评测系统返回的判题状态与题目信息，识别学生代码中可能存在的多种错误类型。
 
-```powershell
-data\BePKT
-```
+- **融合错误表征的知识追踪**  
+  在 DTransformer 知识追踪模型中引入编程错误向量，将题目、知识点、作答结果和错误类型共同建模，获得更加细粒度的学生知识掌握状态。
 
-The dataset is not included in this repository. Download BePKT separately and
-place it under `data\BePKT` before preprocessing.
+- **错误感知的动态状态更新**  
+  通过错误影响权重刻画不同错误类型对知识状态诊断的作用，使模型能够关注持续性错误、高频错误以及错误修正行为。
 
-## Quick Start
+- **面向错误修正的自适应推荐**  
+  综合知识点匹配度、题目难度适配度和错误修正价值，对候选编程题进行排序，生成符合学生当前学习需求的 Top-N 推荐结果。
 
-Install dependencies in the existing virtual environment:
+---
 
-```powershell
-.\.venv\Scripts\python -m pip install -r requirements.txt
-.\.venv\Scripts\python -m pip install -e .
-```
+## 🧠 项目架构
 
-Preprocess BePKT:
+![项目架构图](./docs/images/编程题推荐架构图.png)
 
-```powershell
-.\.venv\Scripts\python -m pektr.preprocess_bepkt --data-dir data\BePKT --out-dir artifacts\bepkt
-```
+系统整体流程包括三个核心模块：
 
-Train PEKT-R:
+1. **代码错误类别多标签识别模块**  
+   输入学生提交代码、判题状态和题目相关信息，输出单次提交的错误类别向量。
 
-```powershell
-.\.venv\Scripts\python -m pektr.train --artifact-dir artifacts\bepkt --epochs 20 --batch-size 64
-```
+2. **融合编程错误表征的 DTransformer 知识追踪模块**  
+   将错误类型、作答结果、题目和知识点联合编码，动态建模学生知识掌握状态。
 
-Evaluate with leave-one-out ranking:
+3. **面向错误修正的自适应推荐模块**  
+   根据学生知识薄弱点、题目难度和错误修正价值计算推荐得分，生成个性化编程练习列表。
 
-```powershell
-.\.venv\Scripts\python -m pektr.evaluate --artifact-dir artifacts\bepkt --checkpoint checkpoints\pektr.pt --k 10 --num-negatives 100
-```
+---
 
-Tune on GPU:
+## 📚 数据集说明
 
-```powershell
-.\.venv\Scripts\python -m pektr.tune --artifact-dir artifacts\bepkt --trials 8 --epochs 4 --batch-size 128 --device cuda
-```
+本项目数据主要围绕在线编程学习过程构建，核心数据包括学生提交代码、在线评测判题结果、题目知识点信息以及编程错误类别标签。
 
-Search ranking weights for a trained checkpoint:
+- **数据精准对齐**  
+  将学生提交记录与题目知识点、判题状态和错误类型进行统一关联，为后续知识追踪和推荐建模提供结构化输入。
 
-```powershell
-.\.venv\Scripts\python -m pektr.score_search --artifact-dir artifacts\bepkt --checkpoint checkpoints\pektr.pt --split val --device cuda
-```
+- **错误类型覆盖**  
+  错误类别包括语法结构错误、数据类型错误、变量未初始化、数组或字符串越界、条件判断错误、循环边界错误、递归终止条件错误、算法复杂度过高和动态规划状态定义错误等。
 
-## RTX 5070 Ti Tuned Configuration
+- **多标签错误建模**  
+  考虑到一次代码提交可能同时包含多种错误，系统将错误识别任务建模为多标签分类问题，更贴合真实编程学习场景。
 
-The current tuned checkpoint is:
+- **历史错误聚合**  
+  引入时间衰减机制，对学生历史错误标签进行聚合，形成学生错误薄弱点向量，用于刻画近期高频或持续出现的错误模式。
 
-```powershell
-checkpoints\pektr_5070ti_best.pt
-```
+---
 
-The tuned checkpoint is not included in the Git repository. Reproduce it with
-the training command below.
+## 🔍 方法说明
 
-It was trained on the local RTX 5070 Ti with:
+### 1. 代码错误类别多标签识别
 
-```powershell
-.\.venv\Scripts\pektr-train.exe --artifact-dir artifacts\bepkt --checkpoint checkpoints\pektr_5070ti_d128.pt --epochs 30 --batch-size 256 --max-seq-len 128 --d-model 128 --n-heads 4 --n-layers 2 --dim-feedforward 256 --dropout 0.1 --lr 0.0005 --weight-decay 0.00005 --device cuda
-```
+系统将学生提交代码、判题状态和题目相关信息组合为输入，利用 CodeT5+ 获取代码语义表示，并通过多标签分类层预测不同错误类型的发生概率。根据设定阈值生成最终错误标签，为后续知识追踪提供错误表征输入。
 
-Use the tuned ranking weights:
+### 2. DTransformer 知识追踪
 
-```powershell
---alpha 0.05 --beta 0.20 --gamma 0.75 --rho 0.75
-```
+在知识追踪阶段，系统分别对题目、作答结果、知识点和错误表征进行编码，并将其融合为学生历史交互序列。DTransformer 通过自注意力机制捕捉不同历史作答行为之间的关联，从而建模学生在不同时刻的知识掌握状态。
 
-The final tuning record is stored in:
+### 3. 自适应编程题推荐
 
-```powershell
-artifacts\tuning\final_5070ti_config.json
-```
+推荐阶段综合考虑三类因素：
 
-Recommend exercises for a learner:
+- **知识点匹配度**：优先推荐覆盖学生薄弱知识点的题目。
+- **难度适配度**：避免题目过难或过易，使推荐内容符合学生当前能力水平。
+- **错误修正价值**：优先推荐能够帮助学生修正近期高频错误或持续性错误的练习题。
 
-```powershell
-.\.venv\Scripts\python -m pektr.recommend --artifact-dir artifacts\bepkt --checkpoint checkpoints\pektr.pt --user-id 34 --top-n 10
-```
+最终系统根据综合推荐得分生成 Top-N 编程题推荐结果。
 
-## Notes
+---
 
-BePKT does not provide hand-labeled fine-grained programming-error labels.
-The preprocessor therefore creates paper-aligned weak labels from raw judge
-status, judge details, problem tags, and code heuristics. If manually labeled
-error data or a CodeT5+/PLCodeBERT classifier is available, replace the
-`error_vectors` field emitted by preprocessing and the PEKT-R model can use it
-directly.
+## 🚀 项目价值
+
+相比仅依据作答正确率或知识点覆盖的传统推荐方法，本项目进一步融合了编程错误类型、错误持续性和错误修正行为等过程性信息，能够更加准确地识别学生的真实学习薄弱点。
+
+该方法有助于提升编程学习平台中练习推荐的针对性、解释性和个性化水平，为智能教育系统中的编程学习诊断与自适应推荐提供支持。
