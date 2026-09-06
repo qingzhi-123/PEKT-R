@@ -1,0 +1,43 @@
+{
+  "device": "NVIDIA GeForce RTX 5070 Ti",
+  "torch": "2.11.0+cu128",
+  "checkpoint": "checkpoints/pektr_5070ti_best.pt",
+  "model": {
+    "max_seq_len": 128,
+    "d_model": 128,
+    "n_heads": 4,
+    "n_layers": 2,
+    "dim_feedforward": 256,
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 30,
+    "batch_size": 256,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.00005,
+    "selection_note": "Checkpoint selected by validation loss, then ranking weights selected by validation NDCG@10."
+  },
+  "ranking": {
+    "alpha": 0.05,
+    "beta": 0.2,
+    "gamma": 0.75,
+    "rho": 0.75
+  },
+  "validation": {
+    "HR@10": 0.2926829268292683,
+    "NDCG@10": 0.14736088389614074,
+    "evaluated_users": 82,
+    "num_negatives": 100
+  },
+  "test_seed_42": {
+    "HR@10": 0.26506024096385544,
+    "NDCG@10": 0.12823692716294435,
+    "evaluated_users": 83,
+    "num_negatives": 100
+  },
+  "test_three_seed_average": {
+    "seeds": [42, 43, 44],
+    "HR@10": 0.25301204819277107,
+    "NDCG@10": 0.12285553847467068
+  }
+}

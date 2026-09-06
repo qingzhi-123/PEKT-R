@@ -1,0 +1,7 @@
+[console_scripts]
+pektr-evaluate = pektr.evaluate:main
+pektr-preprocess-bepkt = pektr.preprocess_bepkt:main
+pektr-recommend = pektr.recommend:main
+pektr-score-search = pektr.score_search:main
+pektr-train = pektr.train:main
+pektr-tune = pektr.tune:main

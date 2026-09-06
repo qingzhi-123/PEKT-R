@@ -1,0 +1,25 @@
+{
+  "rows": 75993,
+  "skipped_rows": 0,
+  "users": 906,
+  "eligible_users": 821,
+  "problems": 600,
+  "knowledge_concepts": 106,
+  "judge_status_counts": {
+    "0": 24340,
+    "4": 6782,
+    "-1": 31182,
+    "-2": 10191,
+    "1": 2755,
+    "6": 146,
+    "7": 505,
+    "2": 51,
+    "3": 40,
+    "8": 1
+  },
+  "splits": {
+    "train": 656,
+    "val": 82,
+    "test": 83
+  }
+}

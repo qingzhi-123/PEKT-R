@@ -1,0 +1,43 @@
+{
+  "best_checkpoint": "checkpoints\\pektr_best.pt",
+  "best_result": {
+    "trial": 6,
+    "params": {
+      "max_seq_len": 192,
+      "d_model": 192,
+      "n_heads": 8,
+      "n_layers": 2,
+      "dim_feedforward": 384,
+      "dropout": 0.1,
+      "lr": 0.0003,
+      "weight_decay": 5e-05,
+      "alpha": 0.5,
+      "beta": 0.15,
+      "gamma": 0.35,
+      "rho": 0.88
+    },
+    "train": {
+      "loss": 0.5781031548976898,
+      "kt_loss": 0.5781031548976898,
+      "contrastive_loss": 0.0
+    },
+    "val_loss": {
+      "loss": 0.6082075238227844,
+      "kt_loss": 0.6082075238227844,
+      "contrastive_loss": 0.0
+    },
+    "val_rank": {
+      "split": "val",
+      "k": 10,
+      "num_negatives": 100,
+      "evaluated_users": 82,
+      "skipped_users": 0,
+      "HR@10": 0.14634146341463414,
+      "NDCG@10": 0.09020022982331848
+    },
+    "score": 0.09020022982331848,
+    "elapsed_sec": 6.26,
+    "device": "cuda"
+  },
+  "results_path": "artifacts\\tuning\\pektr_tuning_results.jsonl"
+}
